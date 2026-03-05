@@ -7,11 +7,11 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class CustomerResponseDto {
   @ApiProperty({
-    description: 'Unique customer identifier',
-    example: 1,
-    type: 'integer',
+    description: 'Unique customer identifier (UUID)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    format: 'uuid',
   })
-  id: number;
+  id: string;
 
   @ApiProperty({
     description: 'Customer full name',

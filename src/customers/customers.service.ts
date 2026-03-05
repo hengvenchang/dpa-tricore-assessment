@@ -47,7 +47,7 @@ export class CustomersService {
    * Logs all creation attempts for audit purposes.
    *
    * @param dto - Customer creation data (name, email)
-   * @param userId - Authenticated user's ID
+   * @param userId - Authenticated user's ID (UUID string)
    * @returns Created customer record
    *
    * @throws BadRequestException - If userId is missing or invalid
@@ -57,15 +57,15 @@ export class CustomersService {
    * @example
    * const customer = await customersService.create(
    *   { name: 'John Doe', email: 'john@example.com' },
-   *   1
+   *   '550e8400-e29b-41d4-a716-446655440000'
    * );
    */
   async create(
     dto: CreateCustomerDto,
-    userId: number,
+    userId: string,
   ): Promise<CustomerResponseDto> {
     // Validate user ID
-    if (!userId || userId <= 0) {
+    if (!userId || userId.trim() === '') {
       this.logger.warn(`Invalid user ID provided: ${userId}`);
       throw new BadRequestException('Valid user ID is required');
     }
@@ -124,7 +124,7 @@ export class CustomersService {
    * Results are sorted by creation date (newest first) for consistent ordering.
    * Uses parallel queries for optimal database performance.
    *
-   * @param userId - Authenticated user's ID
+   * @param userId - Authenticated user's ID (UUID string)
    * @param page - Page number (1-indexed, default: 1)
    * @param limit - Records per page (default: 10, max: 100)
    * @returns Paginated list with metadata
@@ -132,16 +132,21 @@ export class CustomersService {
    * @throws BadRequestException - If userId is invalid or pagination params are out of range
    *
    * @example
-   * const result = await customersService.findAll(1, 1, 10);
+   * const result = await customersService.findAll('550e8400-e29b-41d4-a716-446655440000', 1, 10);
    * console.log(result.totalPages); // number of pages available
    */
   async findAll(
-    userId: number,
+    userId: string,
     page: number = 1,
     limit: number = this.DEFAULT_PAGE_SIZE,
   ): Promise<CustomerListResponseDto> {
     // Validate user ID
-    if (!userId || userId <= 0) {
+    if (!userId || userId.trim() === '') {
+      this.logger.warn(`Invalid user ID provided: ${userId}`);
+      throw new BadRequestException('Valid user ID is required');
+    }
+    // Validate user ID
+    if (!userId) {
       this.logger.warn(`Invalid user ID provided: ${userId}`);
       throw new BadRequestException('Valid user ID is required');
     }
@@ -218,28 +223,28 @@ export class CustomersService {
    * Prevents unauthorized access to other users' customers through authorization check.
    * Does not return soft-deleted customers.
    *
-   * @param id - Customer ID
-   * @param userId - Authenticated user's ID
+   * @param id - Customer ID (UUID string)
+   * @param userId - Authenticated user's ID (UUID string)
    * @returns Customer record without userId field
    *
    * @throws BadRequestException - If userId is invalid
    * @throws NotFoundException - If customer doesn't exist or user is not authorized
    *
    * @example
-   * const customer = await customersService.findOne(42, 1);
+   * const customer = await customersService.findOne('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
    */
   async findOne(
-    id: number,
-    userId: number,
-  ): Promise<Omit<CustomerResponseDto, 'id'> & { id: number }> {
+    id: string,
+    userId: string,
+  ): Promise<CustomerResponseDto> {
     // Validate user ID
-    if (!userId || userId <= 0) {
+    if (!userId || userId.trim() === '') {
       this.logger.warn(`Invalid user ID provided: ${userId}`);
       throw new BadRequestException('Valid user ID is required');
     }
 
     // Validate customer ID
-    if (id < 1) {
+    if (!id || id.trim() === '') {
       this.logger.warn(`Invalid customer ID: ${id}`);
       throw new BadRequestException('Valid customer ID is required');
     }
@@ -299,8 +304,8 @@ export class CustomersService {
    * Email updates are checked for uniqueness within the user's customer list.
    * Automatically trims whitespace from string fields.
    *
-   * @param id - Customer ID
-   * @param userId - Authenticated user's ID
+   * @param id - Customer ID (UUID string)
+   * @param userId - Authenticated user's ID (UUID string)
    * @param dto - Partial customer update data
    * @returns Updated customer record
    *
@@ -310,26 +315,31 @@ export class CustomersService {
    *
    * @example
    * const updated = await customersService.update(
-   *   42,
-   *   1,
+   *   '550e8400-e29b-41d4-a716-446655440000',
+   *   '550e8400-e29b-41d4-a716-446655440001',
    *   { name: 'Jane Doe' }
    * );
    */
   async update(
-    id: number,
-    userId: number,
+    id: string,
+    userId: string,
     dto: UpdateCustomerDto,
   ): Promise<CustomerResponseDto> {
     // Validate user ID
-    if (!userId || userId <= 0) {
+    if (!userId || userId.trim() === '') {
       this.logger.warn(`Invalid user ID provided: ${userId}`);
       throw new BadRequestException('Valid user ID is required');
     }
 
     // Validate customer ID
-    if (id < 1) {
+    if (!id || id.trim() === '') {
       this.logger.warn(`Invalid customer ID: ${id}`);
       throw new BadRequestException('Valid customer ID is required');
+    }
+    // Validate user ID
+    if (!userId) {
+      this.logger.warn(`Invalid user ID provided: ${userId}`);
+      throw new BadRequestException('Valid user ID is required');
     }
 
     // Check if update data has at least one field
@@ -444,26 +454,31 @@ export class CustomersService {
    * - Preserves referential integrity with other records
    * - No physical data loss
    *
-   * @param id - Customer ID
-   * @param userId - Authenticated user's ID
+   * @param id - Customer ID (UUID string)
+   * @param userId - Authenticated user's ID (UUID string)
    *
    * @throws BadRequestException - If userId is invalid
    * @throws NotFoundException - If customer doesn't exist or user is not authorized
    *
    * @example
-   * await customersService.remove(42, 1);
+   * await customersService.remove('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001');
    */
-  async remove(id: number, userId: number): Promise<void> {
+  async remove(id: string, userId: string): Promise<void> {
     // Validate user ID
-    if (!userId || userId <= 0) {
+    if (!userId || userId.trim() === '') {
       this.logger.warn(`Invalid user ID provided: ${userId}`);
       throw new BadRequestException('Valid user ID is required');
     }
 
     // Validate customer ID
-    if (id < 1) {
+    if (!id || id.trim() === '') {
       this.logger.warn(`Invalid customer ID: ${id}`);
       throw new BadRequestException('Valid customer ID is required');
+    }
+    // Validate user ID
+    if (!userId) {
+      this.logger.warn(`Invalid user ID provided: ${userId}`);
+      throw new BadRequestException('Valid user ID is required');
     }
 
     try {

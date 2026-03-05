@@ -28,7 +28,7 @@ export class AuthService {
    * Generates and returns a JWT access token for immediate authentication.
    *
    * @param {RegisterDto} dto - Contains user email and password
-   * @returns {Promise<{access_token: string, user: {id: number, email: string}}>} JWT token and user info
+   * @returns {Promise<{access_token: string, user: {id: string, email: string}}>} JWT token and user info
    * @throws {ConflictException} When email is already registered
    *
    * @example
@@ -76,7 +76,7 @@ export class AuthService {
    * Generates and returns a JWT access token upon successful authentication.
    *
    * @param {LoginDto} dto - Contains user email and password
-   * @returns {Promise<{access_token: string, user: {id: number, email: string}}>} JWT token and user info
+   * @returns {Promise<{access_token: string, user: {id: string, email: string}}>} JWT token and user info
    * @throws {UnauthorizedException} When email is not found or password is invalid
    *
    * @example

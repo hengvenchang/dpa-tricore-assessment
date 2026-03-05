@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   Request,
+  ParseUUIDPipe,
   ParseIntPipe,
 } from '@nestjs/common';
 import {
@@ -200,7 +201,7 @@ export class CustomersController {
   })
   async findOne(
     @Request() req,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CustomerResponseDto> {
     return this.customersService.findOne(id, req.user.id);
   }
@@ -254,7 +255,7 @@ export class CustomersController {
   })
   async update(
     @Request() req,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateCustomerDto: UpdateCustomerDto,
   ): Promise<CustomerResponseDto> {
     return this.customersService.update(id, req.user.id, updateCustomerDto);
@@ -302,7 +303,7 @@ export class CustomersController {
   })
   async remove(
     @Request() req,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     await this.customersService.remove(id, req.user.id);
   }
