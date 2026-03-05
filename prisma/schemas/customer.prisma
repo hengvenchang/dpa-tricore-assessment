@@ -1,0 +1,19 @@
+model Customer {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  name      String
+  email     String
+
+  // relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([id])
+  @@index([userId])
+  @@index([email])
+  @@map("customers")
+}
