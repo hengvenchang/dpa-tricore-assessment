@@ -20,10 +20,13 @@ npm install
 # 3. Start database
 docker-compose up -d
 
-# 4. Setup database
+# 4. Generate Prisma client
+npx prisma generate
+
+# 5. Setup database
 npx prisma migrate dev
 
-# 5. Run application
+# 6. Run application
 npm run start:dev
 ```
 
