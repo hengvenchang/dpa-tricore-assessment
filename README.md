@@ -1,194 +1,352 @@
 # DPA Tricore Assessment - Customer Management API
 
-A REST API for managing customers with user authentication, built with NestJS, Prisma, and PostgreSQL.
-
-## Features
-
-- User registration and login with JWT authentication
-- CRUD operations for customers
-- Pagination support for customer listing
-- Password hashing with bcrypt
-- PostgreSQL database with Prisma ORM
+REST API for managing customers with JWT authentication, built with NestJS, Prisma, and PostgreSQL.
 
 ## Tech Stack
 
-- **Framework**: NestJS
-- **Database**: PostgreSQL (via Docker)
-- **ORM**: Prisma
-- **Authentication**: JWT with Passport
-- **Validation**: class-validator
+- **NestJS** - Node.js framework
+- **PostgreSQL** - Database (Docker)
+- **Prisma** - ORM
+- **JWT** - Authentication
 
-## Prerequisites
+## Setup & Run
 
-- Node.js (v18 or higher)
-- Docker and Docker Compose
-- npm or yarn
+```bash
+# 1. Install dependencies
+npm install
 
-## Setup Instructions
+# 2. Configure .env file (see Environment Variables section below)
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd dpa-tricore-assessment
-   ```
+# 3. Start database
+docker-compose up -d
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# 4. Setup database
+npx prisma migrate dev
 
-3. **Start PostgreSQL database**
-   ```bash
-   docker-compose up -d
-   ```
+# 5. Run application
+npm run start:dev
+```
 
-4. **Set up the database**
-   ```bash
-   # Generate Prisma client
-   npx prisma generate
+API available at: **http://localhost:3000**
 
-   # Run database migrations
-   npx prisma migrate dev --name init
-   ```
+---
 
-5. **Start the application**
-   ```bash
-   # Development mode
-   npm run start:dev
+## 📡 API Endpoints
 
-   # Production mode
-   npm run build
-   npm run start:prod
-   ```
+## 📡 API Endpoints
 
-The API will be available at `http://localhost:3000`
+### Authentication Endpoints
 
-## API Endpoints
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---|
+| POST | `/auth/register` | Register a new user | ❌ |
+| POST | `/auth/login` | Login and get JWT token | ❌ |
 
-### Authentication
+### Customer Endpoints
 
-- `POST /auth/register` - Register a new user
-- `POST /auth/login` - Login and get JWT token
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---|
+| POST | `/customers` | Create a new customer | ✅ |
+| GET | `/customers` | Get all customers (paginated) | ✅ |
+| GET | `/customers/:id` | Get customer by ID (UUID) | ✅ |
+| PUT | `/customers/:id` | Update customer (UUID) | ✅ |
+| DELETE | `/customers/:id` | Delete customer (UUID) | ✅ |
 
-### Customers (Requires Authentication)
+## 📝 API Usage Examples
 
-- `POST /customers` - Create a new customer
-- `GET /customers` - Get all customers (paginated)
-- `GET /customers/:id` - Get customer by ID
-- `PUT /customers/:id` - Update customer
-- `DELETE /customers/:id` - Delete customer
-
-## Example API Requests
-
-### Register
+### 1. Register a New User
 ```bash
 curl -X POST http://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123"}'
+  -d '{
+    "email": "cheangvenheng@gmail.com",
+    "password": "securepassword123"
+  }'
 ```
 
-### Login
+**Response:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "5786fbdb-92a1-48c1-ab9c-243443169eab",
+    "email": "cheangvenheng@gmail.com"
+  }
+}
+```
+
+### 2. Login
 ```bash
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123"}'
+  -d '{
+    "email": "cheangvenheng@gmail.com",
+    "password": "securepassword123"
+  }'
 ```
 
-### Create Customer (use token from login)
+### 3. Create a Customer
 ```bash
-curl -X POST http://localhost:3000/customers \
+curl -X POST http://localhost:3000/api/v1/customers \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{"name": "John Doe", "email": "john@example.com"}'
+  -d '{
+    "name": "Monika",
+    "email": "monika@gmail.com"
+  }'
 ```
 
-### Get Customers
+### 4. Get All Customers
 ```bash
-curl -X GET "http://localhost:3000/customers?page=1&limit=10" \
+curl -X GET "http://localhost:3000/api/v1/customers?page=1&limit=10" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-## Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/dpa_tricore?schema=public"
-JWT_SECRET="your-secret-key"
+### 5. Get Customer by ID
+```bash
+curl -X GET http://localhost:3000/api/v1/customers/5786fbdb-92a1-48c1-ab9c-243443169eab \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-## Project Structure
+### 6. Update Customer
+```bash
+curl -X PUT http://localhost:3000/api/v1/customers/5786fbdb-92a1-48c1-ab9c-243443169eab \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "name": "Monika Updated",
+    "email": "monika.updated@gmail.com"
+  }'
+```
+
+### 7. Delete Customer
+```bash
+curl -X DELETE http://localhost:3000/api/v1/customers/5786fbdb-92a1-48c1-ab9c-243443169eab \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**⚠️ Note**: Customer IDs must be valid UUIDs. Non-UUID values will return a 400 Bad Request error.
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the root directory with the following:
+
+```env
+# Database Configuration
+DATABASE_URL="postgresql://tricore_user:tricore_password@localhost:5432/dpa_tricore?schema=public"
+
+# JWT Configuration
+JWT_SECRET="your-secret-key-change-this-in-production"
+
+# Environment
+NODE_ENV="development"
+
+# API Configuration (optional)
+API_VERSION="v1"
+API_PORT="3000"
+```
+
+### Database Connection Details (from docker-compose.yml)
+- **Host**: localhost
+- **Port**: 5432
+- **Username**: tricore_user
+- **Password**: tricore_password
+- **Database**: dpa_tricore
+
+## 🏗️ Project Structure
 
 ```
 src/
-├── auth/           # Authentication module
-├── customers/      # Customers module
-├── dto/            # Data transfer objects
-├── prisma/         # Database service
-└── app.module.ts   # Main application module
+├── auth/                    # Authentication module
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   ├── auth.module.ts
+│   ├── dto/
+│   │   ├── login.dto.ts
+│   │   ├── register.dto.ts
+│   │   └── auth-response.dto.ts
+│   ├── guards/
+│   │   └── jwt-auth.guard.ts
+│   └── strategies/
+│       └── jwt.strategy.ts
+├── customers/               # Customers module
+│   ├── customers.controller.ts
+│   ├── customers.service.ts
+│   ├── customers.module.ts
+│   └── dto/
+│       ├── create-customer.dto.ts
+│       ├── update-customer.dto.ts
+│       └── customer-response.dto.ts
+├── prisma/                  # Database service
+│   ├── prisma.service.ts
+│   └── prisma.module.ts
+├── app.module.ts            # Main application module
+└── main.ts                  # Application entry point
+
+prisma/
+├── schema.prisma            # Combined schema
+├── schemas/
+│   ├── user.prisma
+│   └── customer.prisma
+└── migrations/              # Database migrations
+
+docker-compose.yml           # PostgreSQL configuration
 ```
 
-## Running Tests
+## 🧪 Running Tests
 
 ```bash
-# unit tests
+# Run all tests
 npm run test
 
-# e2e tests
+# Run tests in watch mode
+npm run test:watch
+
+# Run e2e tests
 npm run test:e2e
 
-# test coverage
+# Generate test coverage report
 npm run test:cov
 ```
 
-## License
-
-This project is for assessment purposes.
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 🛠️ Development Commands
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Start development server with auto-reload
+npm run start:dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start:prod
+
+# Lint TypeScript files
+npm run lint
+
+# Format code with prettier
+npm run format
+
+# View database in Prisma Studio
+npx prisma studio
+
+# Generate new migration
+npx prisma migrate dev --name <migration_name>
+
+# Reset database (⚠️ clears all data)
+npx prisma migrate reset
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🔧 Troubleshooting
 
-## Resources
+### Database Connection Issues
 
-Check out a few resources that may come in handy when working with NestJS:
+**Error: "connect ECONNREFUSED 127.0.0.1:5432"**
+```bash
+# Check if Docker container is running
+docker-compose ps
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Start database if stopped
+docker-compose up -d
 
-## Support
+# View logs
+docker-compose logs postgres
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Invalid UUID Error
 
-## Stay in touch
+**Error: "Invalid user ID format. Valid UUID required."**
+- This occurs when using non-UUID IDs (like integers)
+- Solution: Register new users or reset database:
+```bash
+# Reset and recreate database
+npx prisma migrate reset
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### JWT Token Issues
 
-## License
+**Error: "Invalid user ID missing in JWT token"**
+- Token is malformed or expired
+- Try logging in again to get a fresh token
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Port Already in Use
+
+**Error: "Port 3000 already in use"**
+```bash
+# Find and kill process on port 3000
+lsof -i :3000
+kill -9 <PID>
+
+# Or use different port
+PORT=3001 npm run start:dev
+```
+
+### Prisma Client Issues
+
+**Error: "PrismaClientInitializationError"**
+```bash
+# Regenerate Prisma client
+npx prisma generate
+
+# Reinstall dependencies
+rm -rf node_modules
+npm install
+```
+
+## 🗑️ Cleanup
+
+### Stop Database
+```bash
+docker-compose down
+```
+
+### Remove Database Volume (⚠️ deletes all data)
+```bash
+docker-compose down -v
+```
+
+### Remove All Containers and Images
+```bash
+docker-compose down --rmi all
+```
+
+## 📚 Additional Resources
+
+- [NestJS Documentation](https://docs.nestjs.com)
+- [Prisma Documentation](https://www.prisma.io/docs/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [JWT.io](https://jwt.io) - JWT debugger and documentation
+- [Docker Documentation](https://docs.docker.com/)
+
+## 📋 Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP,
+  INDEX(id),
+  INDEX(email)
+);
+```
+
+### Customers Table
+```sql
+CREATE TABLE customers (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP
+);
+```
+
+## 📄 License
+
+This project is for assessment purposes.
