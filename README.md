@@ -29,6 +29,13 @@ npm run start:dev
 
 API available at: **http://localhost:3000**
 
+## Prerequisites
+
+- Node.js v22.21.1+
+- npm 11.6.2+
+- Docker 28.4.0+
+- NestJS 11.0.14+
+
 ---
 
 ## 📡 API Endpoints
