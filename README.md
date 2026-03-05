@@ -50,8 +50,8 @@ API available at: **http://localhost:3000**
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---|
-| POST | `/auth/register` | Register a new user | ❌ |
-| POST | `/auth/login` | Login and get JWT token | ❌ |
+| POST | `/api/v1/auth/register` | Register a new user | ❌ |
+| POST | `/api/v1/auth/login` | Login and get JWT token | ❌ |
 
 ### Customer Endpoints
 
@@ -67,7 +67,7 @@ API available at: **http://localhost:3000**
 
 ### 1. Register a New User
 ```bash
-curl -X POST http://localhost:3000/auth/register \
+curl -X POST http://localhost:3000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "cheangvenheng@gmail.com",
@@ -88,7 +88,7 @@ curl -X POST http://localhost:3000/auth/register \
 
 ### 2. Login
 ```bash
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "cheangvenheng@gmail.com",
