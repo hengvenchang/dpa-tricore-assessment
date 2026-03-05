@@ -15,7 +15,8 @@ REST API for managing customers with JWT authentication, built with NestJS, Pris
 # 1. Install dependencies
 npm install
 
-# 2. Configure .env file (see Environment Variables section below)
+# 2. Configure .env file (copy .env.example to .env)
+cp .env.example .env
 
 # 3. Start database
 docker-compose up -d
